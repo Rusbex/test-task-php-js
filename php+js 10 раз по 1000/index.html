@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Operation Processor</title>
+    <script>
+        async function fetchOperations(offset) {
+            const response = await fetch(`process_operations.php?offset=${offset}`);
+            if (!response.ok) {
+                throw new Error(`Ошибка сети: ${response.status}`);
+            }
+            const data = await response.json();
+            return data;
+        }
+
+        async function processAllOperations() {
+            let offset = 0;
+            let totalProcessed = 0;
+            const limit = 1000;
+
+            while (true) {
+                try {
+                    const data = await fetchOperations(offset);
+                    console.log(`Обработано операций с ${offset + 1} по ${offset + data.operations.length}`);
+
+                    // Здесь можно добавить логику для обработки полученных операций
+                    // Например, отображение их на странице или запись в базу данных
+
+                    totalProcessed += data.operations.length;
+                    offset += limit;
+
+                    // Проверяем, если все операции были обработаны
+                    if (data.allProcessed) {
+                        break;
+                    }
+                } catch (error) {
+                    console.error(`Ошибка при обработке операций: ${error.message}`);
+                    break;
+                }
+            }
+
+            console.log(`Все операции выполнены, всего обработано: ${totalProcessed}`);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            processAllOperations();
+        });
+    </script>
+</head>
+<body>
+    <h1>Operation Processor</h1>
+    <p>Проверка консоли для результатов обработки операций.</p>
+</body>
+</html>
